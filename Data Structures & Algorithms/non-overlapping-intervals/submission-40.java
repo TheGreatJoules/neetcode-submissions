@@ -1,0 +1,23 @@
+class Solution {
+    public int eraseOverlapIntervals(int[][] intervals) {
+        Arrays.sort(intervals, (a, b) -> Integer.compare(a[0], b[0]));
+        int max = Arrays.stream(intervals).flatMapToInt(Arrays::stream).max().orElse(0);
+        return intervals.length - dfs(intervals, new int[intervals.length+1][max+1], 0, Integer.MIN_VALUE);
+    }
+
+    private int dfs(int[][] intervals, int[][] memo, int current, int prev) {
+        if (current >= intervals.length || prev >= intervals.length) {
+            return 0;
+        }
+        Arrays.fill(memo[current], Integer.MIN_VALUE);
+        int resultPrev = dfs(intervals, memo, current+1, prev);
+        if (prev < 0) {
+            return Math.max(resultPrev, 1 + dfs(intervals, memo, current+1, current));
+        } else if (prev >= 0) {
+            if (intervals[prev][1] <= intervals[current][0]) {
+                return Math.max(resultPrev, 1 + dfs(intervals, memo, current+1, current));
+            }
+        }
+        return resultPrev;
+    }
+}
